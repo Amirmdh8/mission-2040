@@ -1,0 +1,985 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MISSION 2040 — دعوت‌نامه تعاملی فضایی</title>
+<!-- Google Fonts with Fallbacks -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Vazirmatn:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
+
+<style>
+/* ==========================================
+1. RESET & BASE STYLES
+========================================== */
+• {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+user-select: none;
+-webkit-tap-highlight-color: transparent;
+}
+
+:root {
+--bg-dark: #030712;
+--neon-cyan: #00f0ff;
+--neon-purple: #a855f7;
+--neon-pink: #ec4899;
+--glass-bg: rgba(15, 23, 42, 0.85);
+--glass-border: rgba(0, 240, 255, 0.3);
+--text-main: #f8fafc;
+--text-muted: #94a3b8;
+--font-fa: 'Vazirmatn', Tahoma, 'Segoe UI', sans-serif;
+--font-sci-fi: 'Orbitron', sans-serif;
+}
+
+body {
+font-family: var(--font-fa);
+background-color: var(--bg-dark);
+color: var(--text-main);
+min-height: 100vh;
+overflow-x: hidden;
+display: flex;
+justify-content: center;
+align-items: center;
+position: relative;
+}
+
+/* Dynamic Space Background Canvas */
+#space-canvas {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+z-index: 0;
+pointer-events: none !important;
+}
+
+/* HUD Background Grid Overlay */
+.hud-grid-overlay {
+position: fixed;
+top: 0;
+left: 0;
+width: 100%;
+height: 100%;
+background-image:
+linear-gradient(rgba(0, 240, 255, 0.03) 1px, transparent 1px),
+linear-gradient(90deg, rgba(0, 240, 255, 0.03) 1px, transparent 1px);
+background-size: 40px 40px;
+pointer-events: none !important;
+z-index: 1;
+}
+
+/* Main Container */
+.app-container {
+position: relative;
+z-index: 100 !important;
+width: 100%;
+max-width: 760px;
+padding: 20px;
+margin: auto;
+}
+
+/* ==========================================
+2. HEADER & NAVIGATION PROGRESS HUD
+========================================== */
+.hud-header {
+text-align: center;
+margin-bottom: 25px;
+}
+
+.brand-title {
+font-family: var(--font-sci-fi);
+font-size: 2.8rem;
+font-weight: 900;
+letter-spacing: 4px;
+background: linear-gradient(135deg, var(--neon-cyan), var(--neon-purple), var(--neon-pink));
+-webkit-background-clip: text;
+-webkit-text-fill-color: transparent;
+text-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+margin-bottom: 15px;
+display: inline-block;
+}
+
+.progress-bar-container {
+display: flex;
+justify-content: space-between;
+align-items: center;
+position: relative;
+max-width: 450px;
+margin: 0 auto;
+padding: 0 10px;
+}
+
+.progress-line-track {
+position: absolute;
+top: 50%;
+left: 0;
+right: 0;
+height: 3px;
+background: rgba(255, 255, 255, 0.1);
+transform: translateY(-50%);
+z-index: 1;
+}
+
+.progress-line-fill {
+position: absolute;
+top: 50%;
+right: 0;
+height: 3px;
+background: linear-gradient(90deg, var(--neon-pink), var(--neon-cyan));
+transform: translateY(-50%);
+z-index: 1;
+transition: width 0.4s ease;
+width: 0%;
+}
+
+.step-node {
+position: relative;
+z-index: 2;
+width: 38px;
+height: 38px;
+border-radius: 50%;
+background: var(--bg-dark);
+border: 2px solid rgba(255, 255, 255, 0.2);
+color: var(--text-muted);
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: 700;
+font-size: 0.9rem;
+transition: all 0.3s ease;
+box-shadow: 0 0 10px rgba(0,0,0,0.8);
+}
+
+.step-node.active {
+border-color: var(--neon-cyan);
+color: var(--neon-cyan);
+box-shadow: 0 0 15px var(--neon-cyan);
+background: rgba(0, 240, 255, 0.15);
+}
+
+.step-node.completed {
+border-color: var(--neon-purple);
+background: var(--neon-purple);
+color: #fff;
+box-shadow: 0 0 12px var(--neon-purple);
+}
+
+/* ==========================================
+3. CARDS & PAGE STEPS
+========================================== */
+.glass-card {
+background: var(--glass-bg);
+backdrop-filter: blur(16px);
+-webkit-backdrop-filter: blur(16px);
+border: 1px solid var(--glass-border);
+border-radius: 24px;
+padding: 35px 30px;
+box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8),
+inset 0 0 15px rgba(0, 240, 255, 0.05);
+position: relative;
+overflow: hidden;
+}
+
+.glass-card::before, .glass-card::after {
+content: '';
+position: absolute;
+width: 12px;
+height: 12px;
+border-color: var(--neon-cyan);
+border-style: solid;
+pointer-events: none;
+}
+.glass-card::before {
+top: 12px;
+right: 12px;
+border-width: 2px 2px 0 0;
+}
+.glass-card::after {
+bottom: 12px;
+left: 12px;
+border-width: 0 0 2px 2px;
+}
+
+.page-step {
+display: none !important;
+opacity: 0;
+transition: opacity 0.3s ease;
+}
+
+.page-step.active {
+display: block !important;
+opacity: 1;
+}
+
+h2.step-title {
+font-size: 1.6rem;
+font-weight: 800;
+color: var(--text-main);
+margin-bottom: 12px;
+text-align: center;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+}
+
+p.step-subtitle {
+color: var(--text-muted);
+font-size: 0.98rem;
+text-align: center;
+line-height: 1.7;
+margin-bottom: 25px;
+}
+
+/* ==========================================
+4. BUTTONS & UI CONTROLS
+========================================== */
+.btn-neon {
+position: relative;
+z-index: 9999 !important;
+pointer-events: auto !important;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+width: 100%;
+padding: 16px 24px;
+font-family: var(--font-fa);
+font-size: 1.05rem;
+font-weight: 700;
+color: #fff;
+background: linear-gradient(135deg, rgba(0, 240, 255, 0.3), rgba(168, 85, 247, 0.4));
+border: 1px solid var(--neon-cyan);
+border-radius: 14px;
+cursor: pointer !important;
+transition: all 0.25s ease;
+box-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+text-shadow: 0 0 8px rgba(255,255,255,0.8);
+margin-top: 15px;
+}
+
+.btn-neon:hover {
+background: linear-gradient(135deg, rgba(0, 240, 255, 0.5), rgba(236, 72, 153, 0.5));
+box-shadow: 0 0 25px rgba(0, 240, 255, 0.7), 0 0 12px rgba(236, 72, 153, 0.6);
+transform: translateY(-2px);
+border-color: #fff;
+}
+
+.btn-neon:active {
+transform: translateY(1px);
+}
+
+.btn-secondary {
+background: rgba(255, 255, 255, 0.1);
+border-color: rgba(255, 255, 255, 0.3);
+box-shadow: none;
+}
+
+.btn-secondary:hover {
+background: rgba(255, 255, 255, 0.25);
+border-color: #fff;
+box-shadow: 0 0 15px rgba(255, 255, 255, 0.3);
+}
+
+/* ==========================================
+5. FORM INPUTS & INTERACTIVE OPTIONS
+========================================== */
+.form-group {
+margin-bottom: 22px;
+text-align: right;
+}
+
+.form-label {
+display: block;
+font-size: 0.95rem;
+font-weight: 600;
+color: var(--neon-cyan);
+margin-bottom: 8px;
+}
+
+.input-control {
+width: 100%;
+padding: 14px 18px;
+background: rgba(15, 23, 42, 0.9);
+border: 1px solid rgba(0, 240, 255, 0.4);
+border-radius: 12px;
+color: #fff;
+font-family: var(--font-fa);
+font-size: 1rem;
+outline: none;
+transition: all 0.3s ease;
+}
+
+.input-control:focus {
+border-color: var(--neon-pink);
+box-shadow: 0 0 15px rgba(236, 72, 153, 0.4);
+}
+
+/* Options Grid */
+.options-grid {
+display: grid;
+grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+gap: 12px;
+margin-top: 8px;
+}
+
+.option-card {
+background: rgba(30, 41, 59, 0.7);
+border: 1px solid rgba(255, 255, 255, 0.2);
+border-radius: 12px;
+padding: 14px 10px;
+text-align: center;
+cursor: pointer;
+transition: all 0.2s ease;
+font-size: 0.95rem;
+color: var(--text-muted);
+display: flex;
+flex-direction: column;
+align-items: center;
+gap: 6px;
+}
+
+.option-card:hover {
+border-color: var(--neon-cyan);
+background: rgba(0, 240, 255, 0.15);
+color: #fff;
+}
+
+.option-card.selected {
+border-color: var(--neon-cyan);
+background: linear-gradient(135deg, rgba(0, 240, 255, 0.35), rgba(168, 85, 247, 0.35));
+color: #fff;
+box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+font-weight: 700;
+}
+
+/* Info Cards (Page 2) */
+.info-grid {
+display: grid;
+grid-template-columns: repeat(3, 1fr);
+gap: 15px;
+margin: 20px 0;
+}
+
+.info-card {
+background: rgba(255, 255, 255, 0.05);
+border: 1px solid rgba(0, 240, 255, 0.25);
+border-radius: 16px;
+padding: 16px 10px;
+text-align: center;
+}
+
+.info-card .icon {
+font-size: 1.6rem;
+margin-bottom: 6px;
+}
+
+.info-card .label {
+font-size: 0.8rem;
+color: var(--text-muted);
+margin-bottom: 4px;
+}
+
+.info-card .value {
+font-size: 1.05rem;
+font-weight: 700;
+color: var(--neon-cyan);
+}
+
+/* Error Banner */
+.error-banner {
+display: none;
+background: rgba(239, 68, 68, 0.25);
+border: 1px solid #ef4444;
+color: #fca5a5;
+padding: 12px 16px;
+border-radius: 12px;
+font-size: 0.9rem;
+text-align: center;
+margin-bottom: 15px;
+}
+
+/* ==========================================
+6. FINAL CONFIRMATION & COUNTDOWN
+========================================== */
+.confirmation-header {
+text-align: center;
+margin-bottom: 25px;
+}
+
+.status-badge {
+display: inline-block;
+padding: 6px 18px;
+background: rgba(34, 197, 94, 0.2);
+border: 1px solid #22c55e;
+color: #4ade80;
+border-radius: 50px;
+font-size: 0.85rem;
+font-weight: 700;
+margin-bottom: 10px;
+}
+
+.summary-list {
+background: rgba(15, 23, 42, 0.9);
+border: 1px solid rgba(255, 255, 255, 0.15);
+border-radius: 16px;
+padding: 20px;
+margin-bottom: 25px;
+}
+
+.summary-item {
+display: flex;
+justify-content: space-between;
+align-items: center;
+padding: 10px 0;
+border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+font-size: 0.95rem;
+}
+
+.summary-item:last-child {
+border-bottom: none;
+}
+
+.summary-label {
+color: var(--text-muted);
+}
+
+.summary-val {
+font-weight: 700;
+color: var(--neon-cyan);
+}
+
+.countdown-box {
+background: linear-gradient(135deg, rgba(0, 240, 255, 0.15), rgba(168, 85, 247, 0.15));
+border: 1px solid var(--neon-purple);
+border-radius: 18px;
+padding: 22px;
+text-align: center;
+margin-bottom: 25px;
+}
+
+.countdown-title {
+font-size: 0.95rem;
+color: var(--neon-pink);
+font-weight: 700;
+margin-bottom: 12px;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
+
+.countdown-value {
+font-size: 1.15rem;
+font-weight: 800;
+color: #fff;
+letter-spacing: 0.5px;
+line-height: 1.6;
+text-shadow: 0 0 10px rgba(0, 240, 255, 0.5);
+}
+
+.launch-alert {
+color: #4ade80;
+font-weight: 800;
+font-size: 1.2rem;
+}
+
+.action-buttons-group {
+display: flex;
+gap: 12px;
+}
+
+@media (max-width: 600px) {
+.brand-title { font-size: 2.1rem; }
+.glass-card { padding: 25px 18px; }
+.info-grid { grid-template-columns: 1fr; }
+.action-buttons-group { flex-direction: column; }
+.options-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Space Canvas -->
+<canvas id="space-canvas"></canvas>
+<div class="hud-grid-overlay"></div>
+
+<main class="app-container">
+
+<!-- HEADER & PROGRESS INDICATOR -->
+<header class="hud-header">
+<h1 class="brand-title">MISSION 2040</h1>
+
+<div class="progress-bar-container">
+<div class="progress-line-track"></div>
+<div class="progress-line-fill" id="progress-fill"></div>
+<div class="step-node active" id="node-1">۱</div>
+<div class="step-node" id="node-2">۲</div>
+<div class="step-node" id="node-3">۳</div>
+<div class="step-node" id="node-4">۴</div>
+<div class="step-node" id="node-5">۵</div>
+</div>
+</header>
+
+<!-- PAGE 1: START MISSION -->
+<section id="page-1" class="glass-card page-step active">
+<h2 class="step-title">🌌 شروع مأموریت</h2>
+<p class="step-subtitle">شما برای سفری فراتر از زمین انتخاب شده‌اید.</p>
+
+<div style="text-align: justify; line-height: 1.9; color: #cbd5e1; margin-bottom: 30px; font-size: 0.98rem; background: rgba(0,0,0,0.3); padding: 18px; border-radius: 14px; border-right: 3px solid var(--neon-cyan);">
+به پروژه بزرگ اکتشافی سال ۲۰۴۰ خوش آمدید. این یک دعوت‌نامه رسمی و انحصاری برای حضور شما در نخستین پرواز سرنشین‌دار نسل جدید فضاپیماهای عمیق است. آینده اکتشافات بشری از همین لحظه آغاز می‌شود.
+</div>
+
+<!-- Direct Global Call to Guarantee Click Execution -->
+<button type="button" class="btn-neon" onclick="goToPage(2)">
+🚀 ورود به مأموریت
+</button>
+</section>
+
+<!-- PAGE 2: MISSION BRIEFING -->
+<section id="page-2" class="glass-card page-step">
+<h2 class="step-title">🛰️ اطلاعات مأموریت</h2>
+<p class="step-subtitle">خلاصه مشخصات فنی و شرایط عملیاتی پرواز</p>
+
+<div class="info-grid">
+<div class="info-card">
+<div class="icon">📍</div>
+<div class="label">مقصد</div>
+<div class="value">فراتر از مدار زمین</div>
+</div>
+<div class="info-card">
+<div class="icon">⏱️</div>
+<div class="label">مدت مأموریت</div>
+<div class="value">۷ روز</div>
+</div>
+<div class="info-card">
+<div class="icon">👨‍🚀</div>
+<div class="label">تعداد خدمه</div>
+<div class="value">۱۲ نفر</div>
+</div>
+</div>
+
+<div style="line-height: 1.8; color: #cbd5e1; margin-bottom: 25px; text-align: center; font-size: 0.95rem;">
+این مأموریت یکی از نخستین سفرهای آزمایشی انسان به نسل جدید ایستگاه‌های فضایی است.
+</div>
+
+<button type="button" class="btn-neon" onclick="goToPage(3)">
+ادامه مأموریت ➜
+</button>
+</section>
+
+<!-- PAGE 3: LAUNCH DATE & DESTINATION -->
+<section id="page-3" class="glass-card page-step">
+<h2 class="step-title">📅 زمان و مقصد پرتاب</h2>
+<p class="step-subtitle">زمان دقیق پرتاب را انتخاب کنید</p>
+
+<div id="p3-error" class="error-banner"></div>
+
+<div class="form-group">
+<label class="form-label" for="launch-date">تاریخ پرتاب</label>
+<input type="date" id="launch-date" class="input-control">
+</div>
+
+<div class="form-group">
+<label class="form-label" for="launch-time">ساعت پرتاب</label>
+<input type="time" id="launch-time" class="input-control" value="12:00">
+</div>
+
+<div class="form-group">
+<label class="form-label">مقصد فضایی</label>
+<div class="options-grid">
+<div class="option-card" onclick="selectOption(this, 'destination', '🌙 ماه')">
+<span style="font-size: 1.3rem;">🌙</span>
+<span>ماه</span>
+</div>
+<div class="option-card" onclick="selectOption(this, 'destination', '🔴 مریخ')">
+<span style="font-size: 1.3rem;">🔴</span>
+<span>مریخ</span>
+</div>
+<div class="option-card" onclick="selectOption(this, 'destination', '🛰️ ایستگاه مداری')">
+<span style="font-size: 1.3rem;">🛰️</span>
+<span>ایستگاه مداری</span>
+</div>
+</div>
+</div>
+
+<button type="button" class="btn-neon" onclick="validatePage3()">
+ادامه ➜
+</button>
+</section>
+
+<!-- PAGE 4: CREW REGISTRATION -->
+<section id="page-4" class="glass-card page-step">
+<h2 class="step-title">👨‍🚀 ثبت مشخصات خدمه</h2>
+<p class="step-subtitle">اطلاعات فضاپیمایی خود را تنظیم کنید</p>
+
+<div id="p4-error" class="error-banner"></div>
+
+<div class="form-group">
+<label class="form-label" for="crew-name">نام و نام خانوادگی</label>
+<input type="text" id="crew-name" class="input-control" placeholder="مثلاً: آریا پارسا">
+</div>
+
+<!-- Q1 -->
+<div class="form-group">
+<label class="form-label">۱. آیا در این مأموریت شرکت می‌کنید؟</label>
+<div class="options-grid">
+<div class="option-card" onclick="selectOption(this, 'attendance', 'بله، حتماً 🚀')">بله، حتماً 🚀</div>
+<div class="option-card" onclick="selectOption(this, 'attendance', 'شاید 🤔')">شاید 🤔</div>
+<div class="option-card" onclick="selectOption(this, 'attendance', 'متأسفانه نمی‌توانم')">متأسفانه نمی‌توانم</div>
+</div>
+</div>
+
+<!-- Q2 -->
+<div class="form-group">
+<label class="form-label">۲. نقش مورد علاقه شما در مأموریت چیست؟</label>
+<div class="options-grid">
+<div class="option-card" onclick="selectOption(this, 'role', '👨‍🚀 فرمانده')">👨‍🚀 فرمانده</div>
+<div class="option-card" onclick="selectOption(this, 'role', '🔬 دانشمند')">🔬 دانشمند</div>
+<div class="option-card" onclick="selectOption(this, 'role', '🛠️ مهندس')">🛠️ مهندس</div>
+</div>
+</div>
+
+<!-- Q3 -->
+<div class="form-group">
+<label class="form-label">۳. غذای فضایی مورد علاقه شما چیست؟</label>
+<div class="options-grid">
+<div class="option-card" onclick="selectOption(this, 'food', '🍕 پیتزای فضایی')">🍕 پیتزای فضایی</div>
+<div class="option-card" onclick="selectOption(this, 'food', '🥘 غذای مخصوص فضانوردان')">🥘 غذای مخصوص فضانوردان</div>
+<div class="option-card" onclick="selectOption(this, 'food', '🧬 غذای آینده')">🧬 غذای آینده</div>
+</div>
+</div>
+
+<button type="button" class="btn-neon" onclick="validatePage4()">
+🚀 تأیید مأموریت
+</button>
+</section>
+
+<!-- PAGE 5: FINAL CONFIRMATION -->
+<section id="page-5" class="glass-card page-step">
+<div class="confirmation-header">
+<span class="status-badge">✓ تأییدیه صادر شد</span>
+<h2 class="step-title" style="color: var(--neon-cyan);">🚀 مأموریت تأیید شد!</h2>
+<p class="step-subtitle">کارت پرواز و تأییدیه رسمی شما با موفقیت ثبت گردید.</p>
+</div>
+
+<!-- Summary -->
+<div class="summary-list">
+<div class="summary-item">
+<span class="summary-label">نام و نام خانوادگی:</span>
+<span class="summary-val" id="sum-name">-</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">تاریخ پرتاب:</span>
+<span class="summary-val" id="sum-date">-</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">ساعت پرتاب:</span>
+<span class="summary-val" id="sum-time">-</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">مقصد مأموریت:</span>
+<span class="summary-val" id="sum-dest">-</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">وضعیت حضور:</span>
+<span class="summary-val" id="sum-attend">-</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">نقش در مأموریت:</span>
+<span class="summary-val" id="sum-role">-</span>
+</div>
+<div class="summary-item">
+<span class="summary-label">جیره غذایی انتخابی:</span>
+<span class="summary-val" id="sum-food">-</span>
+</div>
+</div>
+
+<!-- Live Countdown Timer -->
+<div class="countdown-box">
+<div class="countdown-title">
+<span>⏱️</span>
+<span>زمان باقی‌مانده تا پرتاب</span>
+</div>
+<div class="countdown-value" id="countdown-display">
+در حال محاسبه زمان...
+</div>
+</div>
+
+<!-- Action Buttons -->
+<div class="action-buttons-group">
+<button type="button" class="btn-neon btn-secondary" onclick="goToPage(3)">
+✏️ ویرایش اطلاعات
+</button>
+<button type="button" class="btn-neon" onclick="restartMission()">
+🔄 شروع دوباره
+</button>
+</div>
+</section>
+
+</main>
+
+<!-- Global Javascript Logic -->
+<script>
+// Data State
+var missionState = {
+date: '',
+time: '12:00',
+destination: '',
+name: '',
+attendance: '',
+role: '',
+food: ''
+};
+
+var timerInterval = null;
+
+// Directly Exposed Global Function for Page Navigation
+window.goToPage = function(stepNumber) {
+// Hide all pages
+var pages = document.getElementsByClassName('page-step');
+for (var i = 0; i < pages.length; i++) {
+pages[i].classList.remove('active');
+}
+
+// Show target page
+var target = document.getElementById('page-' + stepNumber);
+if (target) {
+target.classList.add('active');
+}
+
+updateProgressHUD(stepNumber);
+window.scrollTo({ top: 0, behavior: 'smooth' });
+
+if (stepNumber === 5) {
+renderSummary();
+startCountdown();
+} else if (timerInterval) {
+clearInterval(timerInterval);
+}
+};
+
+// Update HUD Progress Nodes
+function updateProgressHUD(step) {
+for (var i = 1; i <= 5; i++) {
+var node = document.getElementById('node-' + i);
+if (node) {
+if (i < step) {
+node.className = 'step-node completed';
+} else if (i === step) {
+node.className = 'step-node active';
+} else {
+node.className = 'step-node';
+}
+}
+}
+
+var fillBar = document.getElementById('progress-fill');
+if (fillBar) {
+var percentage = ((step - 1) / 4) * 100;
+fillBar.style.width = percentage + '%';
+}
+}
+
+// Selection Cards Handler
+window.selectOption = function(element, property, value) {
+var siblings = element.parentNode.getElementsByClassName('option-card');
+for (var i = 0; i < siblings.length; i++) {
+siblings[i].classList.remove('selected');
+}
+element.classList.add('selected');
+missionState[property] = value;
+};
+
+// Page 3 Validation
+window.validatePage3 = function() {
+var dateVal = document.getElementById('launch-date').value;
+var timeVal = document.getElementById('launch-time').value;
+var p3Error = document.getElementById('p3-error');
+
+p3Error.style.display = 'none';
+
+if (!dateVal || !timeVal) {
+p3Error.innerText = '⚠️ لطفاً تاریخ و ساعت پرتاب را به‌طور کامل وارد کنید.';
+p3Error.style.display = 'block';
+return;
+}
+
+if (!missionState.destination) {
+p3Error.innerText = '⚠️ لطفاً مقصد فضایی خود را انتخاب کنید.';
+p3Error.style.display = 'block';
+return;
+}
+
+missionState.date = dateVal;
+missionState.time = timeVal;
+goToPage(4);
+};
+
+// Page 4 Validation
+window.validatePage4 = function() {
+var nameVal = document.getElementById('crew-name').value.trim();
+var p4Error = document.getElementById('p4-error');
+
+p4Error.style.display = 'none';
+
+if (!nameVal) {
+p4Error.innerText = '⚠️ لطفاً نام و نام خانوادگی خود را وارد کنید.';
+p4Error.style.display = 'block';
+return;
+}
+
+if (!missionState.attendance) {
+p4Error.innerText = '⚠️ لطفاً مشخص کنید آیا در این مأموریت شرکت می‌کنید یا خیر.';
+p4Error.style.display = 'block';
+return;
+}
+
+if (!missionState.role) {
+p4Error.innerText = '⚠️ لطفاً نقش مورد علاقه خود را انتخاب کنید.';
+p4Error.style.display = 'block';
+return;
+}
+
+if (!missionState.food) {
+p4Error.innerText = '⚠️ لطفاً غذای فضایی مورد علاقه شما چیست را انتخاب کنید.';
+p4Error.style.display = 'block';
+return;
+}
+
+missionState.name = nameVal;
+goToPage(5);
+};
+
+// Reset All Data
+window.restartMission = function() {
+missionState = { date: '', time: '12:00', destination: '', name: '', attendance: '', role: '', food: '' };
+document.getElementById('crew-name').value = '';
+
+var defaultDate = new Date();
+defaultDate.setDate(defaultDate.getDate() + 7);
+document.getElementById('launch-date').value = defaultDate.toISOString().split('T')[0];
+document.getElementById('launch-time').value = '12:00';
+
+var cards = document.getElementsByClassName('option-card');
+for (var i = 0; i < cards.length; i++) {
+cards[i].classList.remove('selected');
+}
+
+document.getElementById('p3-error').style.display = 'none';
+document.getElementById('p4-error').style.display = 'none';
+
+goToPage(1);
+};
+
+// Render Final Summary
+function renderSummary() {
+document.getElementById('sum-name').innerText = missionState.name || '-';
+document.getElementById('sum-date').innerText = missionState.date || '-';
+document.getElementById('sum-time').innerText = missionState.time || '-';
+document.getElementById('sum-dest').innerText = missionState.destination || '-';
+document.getElementById('sum-attend').innerText = missionState.attendance || '-';
+document.getElementById('sum-role').innerText = missionState.role || '-';
+document.getElementById('sum-food').innerText = missionState.food || '-';
+}
+
+// Live Countdown
+function startCountdown() {
+if (timerInterval) clearInterval(timerInterval);
+
+var countdownDisplay = document.getElementById('countdown-display');
+if (!countdownDisplay) return;
+
+var launchTargetStr = missionState.date + 'T' + missionState.time + ':00';
+var targetTime = new Date(launchTargetStr).getTime();
+
+function updateDisplay() {
+var now = new Date().getTime();
+var distance = targetTime - now;
+
+if (isNaN(distance) || distance <= 0) {
+countdownDisplay.innerHTML = '<span class="launch-alert">🚀 زمان پرتاب فرا رسیده است!</span>';
+if (timerInterval) clearInterval(timerInterval);
+return;
+}
+
+var days = Math.floor(distance / (1000 * 60 * 60 * 24));
+var hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+var minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+var seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+countdownDisplay.innerText = 'شما ' + days + ' روز و ' + hours + ' ساعت و ' + minutes + ' دقیقه و ' + seconds + ' ثانیه دیگر پرتاب دارید';
+}
+
+updateDisplay();
+timerInterval = setInterval(updateDisplay, 1000);
+}
+
+// Initial setup on window load
+window.onload = function() {
+var defaultDate = new Date();
+defaultDate.setDate(defaultDate.getDate() + 7);
+var dateInput = document.getElementById('launch-date');
+if (dateInput) {
+dateInput.value = defaultDate.toISOString().split('T')[0];
+}
+
+// Canvas Animated Background
+var canvas = document.getElementById('space-canvas');
+if (canvas) {
+var ctx = canvas.getContext('2d');
+var stars = [];
+
+function resize() {
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+}
+
+function initStars() {
+stars = [];
+for (var i = 0; i < 100; i++) {
+stars.push({
+x: Math.random() * canvas.width,
+y: Math.random() * canvas.height,
+radius: Math.random() * 1.5 + 0.5,
+alpha: Math.random(),
+speed: Math.random() * 0.02 + 0.005,
+color: Math.random() > 0.5 ? '#00f0ff' : '#a855f7'
+});
+}
+}
+
+function draw() {
+ctx.clearRect(0, 0, canvas.width, canvas.height);
+for (var i = 0; i < stars.length; i++) {
+var s = stars[i];
+s.alpha += s.speed;
+if (s.alpha > 1 || s.alpha < 0) {
+s.speed = -s.speed;
+}
+ctx.beginPath();
+ctx.arc(s.x, s.y, s.radius, 0, Math.PI * 2);
+ctx.fillStyle = s.color;
+ctx.globalAlpha = Math.abs(s.alpha);
+ctx.fill();
+}
+requestAnimationFrame(draw);
+}
+
+resize();
+initStars();
+draw();
+
+window.addEventListener('resize', function() {
+resize();
+initStars();
+});
+}
+};
+</script>
+</body>
+</html>
